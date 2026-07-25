@@ -33,4 +33,4 @@ Router --> Redirector
 
 Shortener -- 3. Commits New Unique Mapping Record --> DB
 Redirector -- 5. Increments 'clicks' Count & Reads Original Target --> DB
-Redirector -. 6. Responds Location Routing Header .-> Browser
+Redirector -- 6. Responds Location Routing Header --> Browser
