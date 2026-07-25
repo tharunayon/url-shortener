@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <!-- Tailwind CSS -->
+    <script src="https://jsdelivr.net"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 antialiased font-sans">
+
+    <!-- Card Container -->
+    <div class="w-full max-w-xl bg-white rounded-xl shadow-md border border-gray-200/60 p-10 md:p-14">
+        
+        <h1 class="text-4xl font-extrabold text-black text-center tracking-tight mb-8">
+            URL Shortener
+        </h1>
+        
+        <!-- Input Form -->
+        <form id="shortenForm" class="space-y-5">
+            <input type="url" id="originalUrl" required placeholder="https://google.com" 
+                   class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+            
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg py-3.5 text-base transition-colors shadow-sm cursor-pointer">
+                Shorten URL
+            </button>
+        </form>
+
+        <!-- Result Box -->
+        <div id="resultBox" class="hidden mt-8 text-center animate-fade-in">
+            <div class="inline-flex items-center justify-center gap-2 text-lg text-gray-800 font-medium">
+                <span>Shortened URL:</span>
+                <a id="shortUrl" href="#" target="_blank" class="text-blue-600 font-bold hover:underline break-all"></a>
+                
+                <!-- Copy Button Link -->
+                <button id="copyBtn" class="text-blue-600 hover:text-blue-800 p-1 transition-colors cursor-pointer" title="Copy to Clipboard">
+                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Dynamic Micro-Feedback Text -->
+            <span id="copyFeedback" class="block text-xs text-green-600 font-semibold mt-1 opacity-0 transition-opacity duration-200">Copied to clipboard!</span>
+        </div>
+    </div>
+
+    <!-- Logic Engine Script -->
+    <script>
+        document.getElementById('shortenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const originalUrl = document.getElementById('originalUrl').value;
+            const resultBox = document.getElementById('resultBox');
+            const shortUrlElem = document.getElementById('shortUrl');
+
+            try {
+                const response = await fetch('/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ original_url: originalUrl })
+                });
+                
+                if (!response.ok) throw new Error('Shortening failed');
+                const data = await response.json();
+                
+                shortUrlElem.href = data.short_url;
+                shortUrlElem.textContent = data.short_url;
+                resultBox.classList.remove('hidden');
+            } catch (err) {
+                alert('Could not shorten URL. Check formatting.');
+            }
+        });
+
+        // Clipboard Actions
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const linkText = document.getElementById('shortUrl').textContent;
+            navigator.clipboard.writeText(linkText);
+            
+            const feedback = document.getElementById('copyFeedback');
+            feedback.classList.remove('opacity-0');
+            setTimeout(() => feedback.classList.add('opacity-0'), 2000);
+        });
+    </script>
+</body>
+</html>
